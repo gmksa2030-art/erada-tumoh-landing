@@ -1,4 +1,4 @@
-/* ========= إعدادات المكتب (عدّلها بسهولة) ========= */
+/* ========= إعدادات المكتب ========= */
 const CONFIG = {
   WA_NUMBER: "9665XXXXXXXX", // بدون +
   OFFICE_PHONE: "+966 — [رقمك]",
@@ -40,12 +40,51 @@ function toast(title, message) {
   }, 3200);
 }
 
+/* ========= Motion preference ========= */
+const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+/* ========= Entry animation (stagger tiles) ========= */
+function staggerTiles() {
+  const tiles = $$(".tile");
+  tiles.forEach((tile, i) => {
+    if (reduceMotion) {
+      tile.classList.add("is-in");
+      return;
+    }
+    setTimeout(() => tile.classList.add("is-in"), 90 + i * 90);
+  });
+}
+staggerTiles();
+
+/* ========= Parallax for side title (creative, subtle) ========= */
+(function parallaxTitle(){
+  const title = $(".side-title h1");
+  if (!title || reduceMotion) return;
+
+  let raf = null;
+  const state = { x: 0, y: 0 };
+
+  window.addEventListener("mousemove", (e) => {
+    const cx = window.innerWidth / 2;
+    const cy = window.innerHeight / 2;
+    state.x = (e.clientX - cx) / cx; // -1..1
+    state.y = (e.clientY - cy) / cy;
+
+    if (raf) return;
+    raf = requestAnimationFrame(() => {
+      const tx = (state.x * 8).toFixed(2);
+      const ty = (state.y * 6).toFixed(2);
+      title.style.transform = `translate3d(${tx}px, ${ty}px, 0)`;
+      raf = null;
+    });
+  }, { passive: true });
+})();
+
 /* ========= WhatsApp ========= */
 function openWhatsApp(text) {
   const url = `https://wa.me/${CONFIG.WA_NUMBER}?text=${encodeURIComponent(text)}`;
   window.open(url, "_blank", "noopener,noreferrer");
 }
-
 $("#waBtn")?.addEventListener("click", () => {
   openWhatsApp("السلام عليكم، أود الاستفسار عن خدمات مكتب إرادة وطموح.");
 });
@@ -80,14 +119,12 @@ function openModal({ title, desc, showForm = false, preService = "" }) {
   contactForm.style.display = showForm ? "grid" : "none";
 
   if (showForm) {
-    // preselect service when possible
     const serviceEl = $("#service");
     if (serviceEl && preService) {
       const options = [...serviceEl.options].map(o => o.value);
       if (options.includes(preService)) serviceEl.value = preService;
     }
 
-    // add WA quick action
     const btnWA = document.createElement("button");
     btnWA.type = "button";
     btnWA.className = "btn";
@@ -97,7 +134,6 @@ function openModal({ title, desc, showForm = false, preService = "" }) {
     });
     mActions.appendChild(btnWA);
 
-    // focus first field
     setTimeout(() => $("#fullName")?.focus(), 0);
   } else {
     const btnContact = document.createElement("button");
@@ -120,7 +156,6 @@ function closeModal() {
   backdrop.setAttribute("aria-hidden", "true");
   document.body.style.overflow = "";
 
-  // restore focus
   if (lastFocusedEl && typeof lastFocusedEl.focus === "function") {
     lastFocusedEl.focus();
   }
@@ -145,7 +180,6 @@ $$(".tile").forEach(tile => {
       preService: isContact ? "" : preService,
     });
 
-    // لو كانت خدمة، أضف زر "طلب الخدمة الآن" داخل المودال
     if (!isContact) {
       const quick = document.createElement("button");
       quick.type = "button";
@@ -192,30 +226,14 @@ $("#contactForm")?.addEventListener("submit", (e) => {
   const channel = $("#channel")?.value || "واتساب";
   const msg = ($("#msg")?.value || "").trim();
 
-  if (name.length < 3) {
-    toast("تنبيه", "يرجى إدخال الاسم الكامل.");
-    $("#fullName")?.focus();
-    return;
-  }
+  if (name.length < 3) { toast("تنبيه", "يرجى إدخال الاسم الكامل."); $("#fullName")?.focus(); return; }
   const phoneOk = /^(\+?\d{8,15}|05\d{8})$/.test(phone);
-  if (!phoneOk) {
-    toast("تنبيه", "رقم الجوال غير صحيح (مثال: 05xxxxxxxx).");
-    $("#phone")?.focus();
-    return;
-  }
-  if (!service) {
-    toast("تنبيه", "اختر نوع الخدمة.");
-    $("#service")?.focus();
-    return;
-  }
-  if (msg.length < 10) {
-    toast("تنبيه", "اكتب تفاصيل أكثر (10 أحرف على الأقل).");
-    $("#msg")?.focus();
-    return;
-  }
+  if (!phoneOk) { toast("تنبيه", "رقم الجوال غير صحيح (مثال: 05xxxxxxxx)."); $("#phone")?.focus(); return; }
+  if (!service) { toast("تنبيه", "اختر نوع الخدمة."); $("#service")?.focus(); return; }
+  if (msg.length < 10) { toast("تنبيه", "اكتب تفاصيل أكثر (10 أحرف على الأقل)."); $("#msg")?.focus(); return; }
 
   toast("تم ✅", "تم استلام طلبك وسنعاود التواصل قريبًا.");
-  // اختيارياً: لو اختار العميل واتساب، افتح رسالة جاهزة
+
   if (channel === "واتساب") {
     const wText =
       `طلب خدمة من موقع مكتب إرادة وطموح:\n` +
@@ -231,7 +249,6 @@ $("#contactForm")?.addEventListener("submit", (e) => {
 });
 
 /* ========= Canvas Particles (مُحسن للجوال/التابلت) ========= */
-const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 const canvas = document.getElementById("particles");
 const ctx = canvas.getContext("2d", { alpha: true });
 
@@ -248,11 +265,10 @@ resize();
 
 const particles = [];
 function countForDevice() {
-  // كثافة أقل للجوال لتحسين الأداء
   const area = innerWidth * innerHeight;
-  const base = Math.floor(area / 22000);
-  const cap = innerWidth < 600 ? 38 : innerWidth < 980 ? 55 : 80;
-  return Math.max(18, Math.min(cap, base));
+  const base = Math.floor(area / 24000);
+  const cap = innerWidth < 600 ? 34 : innerWidth < 980 ? 52 : 76;
+  return Math.max(16, Math.min(cap, base));
 }
 const COUNT = reduceMotion ? 0 : countForDevice();
 
@@ -263,9 +279,9 @@ function seed() {
   for (let i = 0; i < COUNT; i++) {
     particles.push({
       x: rand(0, W), y: rand(0, H),
-      vx: rand(-0.20, 0.20), vy: rand(-0.14, 0.14),
-      r: rand(1.1, 2.2),
-      a: rand(0.10, 0.26),
+      vx: rand(-0.18, 0.18), vy: rand(-0.12, 0.12),
+      r: rand(1.1, 2.1),
+      a: rand(0.10, 0.24),
     });
   }
 }
@@ -280,7 +296,7 @@ addEventListener("mousemove", (e) => {
 function loop() {
   ctx.clearRect(0, 0, W, H);
 
-  const g = ctx.createRadialGradient(W * 0.76, H * 0.18, 0, W * 0.76, H * 0.18, Math.max(W, H) * 0.7);
+  const g = ctx.createRadialGradient(W * 0.72, H * 0.18, 0, W * 0.72, H * 0.18, Math.max(W, H) * 0.7);
   g.addColorStop(0, "rgba(31,167,184,0.10)");
   g.addColorStop(1, "rgba(0,0,0,0)");
   ctx.fillStyle = g;
@@ -297,9 +313,9 @@ function loop() {
 
     const dx = mouse.x - p.x, dy = mouse.y - p.y;
     const dist = Math.hypot(dx, dy);
-    if (dist < 160 * DPR) {
-      p.x -= dx * 0.00034;
-      p.y -= dy * 0.00034;
+    if (dist < 150 * DPR) {
+      p.x -= dx * 0.00030;
+      p.y -= dy * 0.00030;
     }
 
     ctx.beginPath();
@@ -308,8 +324,7 @@ function loop() {
     ctx.fill();
   }
 
-  // خطوط ترابط أقل على الجوال
-  const maxDist = (innerWidth < 600 ? 95 : 120) * DPR;
+  const maxDist = (innerWidth < 600 ? 90 : 115) * DPR;
 
   for (let i = 0; i < particles.length; i++) {
     for (let j = i + 1; j < particles.length; j++) {
@@ -317,7 +332,7 @@ function loop() {
       const dx = a.x - b.x, dy = a.y - b.y;
       const d = Math.hypot(dx, dy);
       if (d < maxDist) {
-        const alpha = (1 - d / maxDist) * 0.16;
+        const alpha = (1 - d / maxDist) * 0.14;
         ctx.strokeStyle = `rgba(31,167,184,${alpha})`;
         ctx.lineWidth = 1 * DPR;
         ctx.beginPath();
