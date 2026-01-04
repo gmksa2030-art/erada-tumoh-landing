@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="theme-color" content="#0B1A33" />
-  <title>إرادة وطموح | نبذة مختصرة</title>
+  <title>مكتب إرادة وطموح</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -19,25 +19,21 @@
   <div class="noise" aria-hidden="true"></div>
 
   <main class="wrap">
-    <!-- عنوان جانبي اختياري (يختفي تلقائياً على الجوال) -->
     <aside class="side-title" aria-hidden="true">
       <h1>إرادة <span>وطموح</span></h1>
     </aside>
 
-    <!-- المنطقة المختصرة -->
-    <section class="card" aria-label="نبذة مختصرة عن مكتب إرادة وطموح">
+    <section class="card" id="heroCard" aria-label="نبذة مختصرة عن مكتب إرادة وطموح">
       <div class="top">
         <div class="kicker">
           <span class="dot" aria-hidden="true"></span>
           <div>
-            <div class="brandline">
-              Erada & Tumoh
-            </div>
+            <div class="brandline">Erada & Tumoh</div>
             <small>خدمات عقارية • إدارية • تقنية — للأفراد والجهات الخيرية.</small>
           </div>
         </div>
 
-        <!-- الشعار: حذف كلمة الشعار + تكبيره -->
+        <!-- الشعار: أكبر + زوم تلقائي -->
         <div class="logo-pill logo-only" aria-label="شعار إرادة وطموح">
           <img src="assets/logo.png" alt="شعار إرادة وطموح">
         </div>
@@ -50,8 +46,8 @@
 
         <div class="grid" aria-label="خدمات مختصرة">
           <button class="tile" type="button"
+            data-key="realestate"
             data-title="وساطة عقارية"
-            data-desc="بيع • شراء • تأجير — خدمة موثوقة مع متابعة واضحة حتى إتمام الإجراء."
             data-service="وساطة عقارية">
             <div class="tile-top">
               <span class="tile-ico" aria-hidden="true">🏘️</span>
@@ -63,8 +59,8 @@
           </button>
 
           <button class="tile" type="button"
+            data-key="ngo"
             data-title="خدمات الجمعيات"
-            data-desc="لوائح • نماذج • تقارير — دعم إداري ومالي للقطاع غير الربحي بصياغة مؤسسية."
             data-service="خدمات الجمعيات">
             <div class="tile-top">
               <span class="tile-ico" aria-hidden="true">🏢</span>
@@ -76,8 +72,8 @@
           </button>
 
           <button class="tile" type="button"
+            data-key="tech"
             data-title="خدمات تقنية"
-            data-desc="نماذج • بيانات • عروض • تقارير — تنفيذ عن بُعد بسرعة وجودة عالية."
             data-service="خدمات تقنية">
             <div class="tile-top">
               <span class="tile-ico" aria-hidden="true">💻</span>
@@ -89,8 +85,8 @@
           </button>
 
           <button class="tile" type="button"
+            data-key="contact"
             data-title="تواصل سريع"
-            data-desc="املأ بيانات بسيطة وسنعاود التواصل. يمكنك أيضًا التواصل عبر واتساب مباشرة."
             data-contact="1">
             <div class="tile-top">
               <span class="tile-ico" aria-hidden="true">✉️</span>
@@ -109,7 +105,6 @@
     </section>
   </main>
 
-  <!-- زر واتساب عائم -->
   <button class="wa" id="waBtn" type="button" aria-label="واتساب مباشر">
     <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
       <path d="M20.5 11.5A8.5 8.5 0 115.2 6.2 8.5 8.5 0 0120.5 11.5z" stroke="currentColor" stroke-width="2" opacity=".9"/>
@@ -125,6 +120,7 @@
       <div class="mhead">
         <div>
           <h4 id="mTitle">تفاصيل</h4>
+          <!-- هذا سطر مختصر فقط (بدون تكرار) -->
           <p id="mDesc">...</p>
         </div>
         <button class="x" id="closeModal" type="button" aria-label="إغلاق">
@@ -135,9 +131,9 @@
       </div>
 
       <div class="mbody">
+        <!-- هنا التفاصيل الفعلية فقط -->
         <div id="mBodyText"></div>
 
-        <!-- نموذج مختصر -->
         <form id="contactForm" class="form" style="display:none;">
           <div class="row">
             <div>
@@ -191,7 +187,6 @@
     </div>
   </div>
 
-  <!-- Toast -->
   <div class="toast" id="toast"></div>
 </body>
 </html>
