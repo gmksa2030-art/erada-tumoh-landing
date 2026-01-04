@@ -1,4 +1,3 @@
-/* ========= إعدادات المكتب ========= */
 const CONFIG = {
   WA_NUMBER: "9665XXXXXXXX", // بدون +
   OFFICE_PHONE: "+966 — [رقمك]",
@@ -7,9 +6,10 @@ const CONFIG = {
   WORK_HOURS: "من 9 صباحًا إلى 5 مساءً",
 };
 
-/* ========= Helpers ========= */
 const $ = (q, el = document) => el.querySelector(q);
 const $$ = (q, el = document) => [...el.querySelectorAll(q)];
+
+const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 function escapeHTML(str) {
   return String(str).replace(/[&<>"']/g, s => ({
@@ -31,7 +31,6 @@ function toast(title, message) {
     </div>
   `;
   wrap.appendChild(t);
-
   setTimeout(() => {
     t.style.opacity = "0";
     t.style.transform = "translateY(10px)";
@@ -40,23 +39,65 @@ function toast(title, message) {
   }, 3200);
 }
 
-/* ========= Motion preference ========= */
-const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+/* ========= بيانات المودال (تفاصيل بدون تكرار) ========= */
+const DETAILS = {
+  realestate: {
+    subtitle: "بيع • شراء • تأجير — خدمة موثوقة مع متابعة واضحة.",
+    body: "نساعدك في إجراءات البيع والشراء والتأجير، مع تواصل مباشر ومتابعة حتى إتمام الإجراء، وبأسلوب واضح ومنظم."
+  },
+  ngo: {
+    subtitle: "لوائح • نماذج • تقارير — دعم للقطاع غير الربحي.",
+    body: "نُعد اللوائح والنماذج والتقارير ونساعد في بناء إجراءات إدارية ومالية مرتبة تناسب احتياج الجمعية."
+  },
+  tech: {
+    subtitle: "نماذج • بيانات • عروض • تقارير — تنفيذ عن بُعد.",
+    body: "ننفذ خدمات تقنية عن بُعد بجودة عالية: إعداد نماذج، تنظيم بيانات، عروض تقديمية، وتقارير احترافية."
+  },
+  contact: {
+    subtitle: "نموذج مختصر + واتساب مباشر.",
+    body: "املأ بيانات بسيطة وسنعاود التواصل في أقرب وقت، أو تواصل مباشرة عبر واتساب."
+  }
+};
 
-/* ========= Entry animation (stagger tiles) ========= */
-function staggerTiles() {
+function openWhatsApp(text) {
+  const url = `https://wa.me/${CONFIG.WA_NUMBER}?text=${encodeURIComponent(text)}`;
+  window.open(url, "_blank", "noopener,noreferrer");
+}
+
+$("#waBtn")?.addEventListener("click", () => {
+  openWhatsApp("السلام عليكم، أود الاستفسار عن خدمات مكتب إرادة وطموح.");
+});
+
+/* ========= دخول تدريجي للبطاقات ========= */
+(function staggerTiles() {
   const tiles = $$(".tile");
   tiles.forEach((tile, i) => {
-    if (reduceMotion) {
-      tile.classList.add("is-in");
-      return;
-    }
-    setTimeout(() => tile.classList.add("is-in"), 90 + i * 90);
+    if (reduceMotion) return tile.classList.add("is-in");
+    setTimeout(() => tile.classList.add("is-in"), 120 + i * 90);
   });
-}
-staggerTiles();
+})();
 
-/* ========= Parallax for side title (creative, subtle) ========= */
+/* ========= Spotlight يتبع الماوس داخل الكرت ========= */
+(function cardSpotlight(){
+  const card = $("#heroCard");
+  if (!card || reduceMotion) return;
+
+  let raf = null;
+  card.addEventListener("pointermove", (e) => {
+    const r = card.getBoundingClientRect();
+    const x = ((e.clientX - r.left) / r.width) * 100;
+    const y = ((e.clientY - r.top) / r.height) * 100;
+
+    if (raf) return;
+    raf = requestAnimationFrame(() => {
+      card.style.setProperty("--mx", `${x.toFixed(2)}%`);
+      card.style.setProperty("--my", `${y.toFixed(2)}%`);
+      raf = null;
+    });
+  }, { passive: true });
+})();
+
+/* ========= Parallax بسيط للعنوان الكبير ========= */
 (function parallaxTitle(){
   const title = $(".side-title h1");
   if (!title || reduceMotion) return;
@@ -67,27 +108,16 @@ staggerTiles();
   window.addEventListener("mousemove", (e) => {
     const cx = window.innerWidth / 2;
     const cy = window.innerHeight / 2;
-    state.x = (e.clientX - cx) / cx; // -1..1
+    state.x = (e.clientX - cx) / cx;
     state.y = (e.clientY - cy) / cy;
 
     if (raf) return;
     raf = requestAnimationFrame(() => {
-      const tx = (state.x * 8).toFixed(2);
-      const ty = (state.y * 6).toFixed(2);
-      title.style.transform = `translate3d(${tx}px, ${ty}px, 0)`;
+      title.style.transform = `translate3d(${(state.x * 8).toFixed(2)}px, ${(state.y * 6).toFixed(2)}px, 0)`;
       raf = null;
     });
   }, { passive: true });
 })();
-
-/* ========= WhatsApp ========= */
-function openWhatsApp(text) {
-  const url = `https://wa.me/${CONFIG.WA_NUMBER}?text=${encodeURIComponent(text)}`;
-  window.open(url, "_blank", "noopener,noreferrer");
-}
-$("#waBtn")?.addEventListener("click", () => {
-  openWhatsApp("السلام عليكم، أود الاستفسار عن خدمات مكتب إرادة وطموح.");
-});
 
 /* ========= Modal ========= */
 const backdrop = $("#backdrop");
@@ -108,12 +138,12 @@ setOfficeLine();
 
 let lastFocusedEl = null;
 
-function openModal({ title, desc, showForm = false, preService = "" }) {
+function openModal({ title, subtitle, body, showForm = false, preService = "" }) {
   lastFocusedEl = document.activeElement;
 
   mTitle.textContent = title || "تفاصيل";
-  mDesc.textContent = desc || "";
-  mBodyText.textContent = showForm ? "" : (desc || "");
+  mDesc.textContent = subtitle || "";
+  mBodyText.innerHTML = body ? `<p style="margin:0;color:rgba(234,242,255,.86);font-weight:800;line-height:1.9">${escapeHTML(body)}</p>` : "";
   mActions.innerHTML = "";
 
   contactForm.style.display = showForm ? "grid" : "none";
@@ -141,9 +171,29 @@ function openModal({ title, desc, showForm = false, preService = "" }) {
     btnContact.className = "btn primary";
     btnContact.textContent = "فتح نموذج التواصل";
     btnContact.addEventListener("click", () => {
-      openModal({ title: "تواصل سريع", desc: "أدخل بيانات بسيطة وسنعاود التواصل.", showForm: true });
+      openModal({
+        title: "تواصل سريع",
+        subtitle: DETAILS.contact.subtitle,
+        body: DETAILS.contact.body,
+        showForm: true
+      });
     });
     mActions.appendChild(btnContact);
+
+    const btnService = document.createElement("button");
+    btnService.type = "button";
+    btnService.className = "btn";
+    btnService.textContent = "طلب الخدمة الآن";
+    btnService.addEventListener("click", () => {
+      openModal({
+        title: "طلب خدمة",
+        subtitle: "أدخل بيانات بسيطة وسنعاود التواصل.",
+        body: "",
+        showForm: true,
+        preService
+      });
+    });
+    mActions.appendChild(btnService);
   }
 
   backdrop.classList.add("open");
@@ -155,50 +205,34 @@ function closeModal() {
   backdrop.classList.remove("open");
   backdrop.setAttribute("aria-hidden", "true");
   document.body.style.overflow = "";
-
-  if (lastFocusedEl && typeof lastFocusedEl.focus === "function") {
-    lastFocusedEl.focus();
-  }
+  if (lastFocusedEl && typeof lastFocusedEl.focus === "function") lastFocusedEl.focus();
 }
 
 closeModalBtn?.addEventListener("click", closeModal);
 backdrop?.addEventListener("click", (e) => { if (e.target === backdrop) closeModal(); });
 window.addEventListener("keydown", (e) => { if (e.key === "Escape") closeModal(); });
 
-/* ========= Tiles click ========= */
+/* فتح المودال من البطاقات */
 $$(".tile").forEach(tile => {
   tile.addEventListener("click", () => {
+    const key = tile.getAttribute("data-key") || "contact";
     const title = tile.getAttribute("data-title") || "تفاصيل";
-    const desc = tile.getAttribute("data-desc") || "";
-    const isContact = tile.getAttribute("data-contact") === "1";
     const preService = tile.getAttribute("data-service") || "";
+    const isContact = tile.getAttribute("data-contact") === "1";
+
+    const d = DETAILS[key] || DETAILS.contact;
 
     openModal({
       title,
-      desc,
+      subtitle: d.subtitle,
+      body: d.body,
       showForm: isContact,
-      preService: isContact ? "" : preService,
+      preService: isContact ? "" : preService
     });
-
-    if (!isContact) {
-      const quick = document.createElement("button");
-      quick.type = "button";
-      quick.className = "btn";
-      quick.textContent = "طلب الخدمة الآن";
-      quick.addEventListener("click", () => {
-        openModal({
-          title: "طلب خدمة",
-          desc: "أدخل بيانات بسيطة وسنعاود التواصل.",
-          showForm: true,
-          preService
-        });
-      });
-      mActions.appendChild(quick);
-    }
   });
 });
 
-/* ========= Copy office info ========= */
+/* نسخ بيانات المكتب */
 $("#copyInfo")?.addEventListener("click", async () => {
   const text =
     `مكتب إرادة وطموح\n` +
@@ -216,7 +250,7 @@ $("#copyInfo")?.addEventListener("click", async () => {
   }
 });
 
-/* ========= Contact form (واجهة فقط) ========= */
+/* نموذج التواصل */
 $("#contactForm")?.addEventListener("submit", (e) => {
   e.preventDefault();
 
@@ -248,7 +282,7 @@ $("#contactForm")?.addEventListener("submit", (e) => {
   closeModal();
 });
 
-/* ========= Canvas Particles (مُحسن للجوال/التابلت) ========= */
+/* ========= Canvas Particles (كما هو محسّن للجوال/التابلت) ========= */
 const canvas = document.getElementById("particles");
 const ctx = canvas.getContext("2d", { alpha: true });
 
@@ -271,7 +305,6 @@ function countForDevice() {
   return Math.max(16, Math.min(cap, base));
 }
 const COUNT = reduceMotion ? 0 : countForDevice();
-
 const rand = (a, b) => Math.random() * (b - a) + a;
 
 function seed() {
@@ -345,5 +378,4 @@ function loop() {
 
   requestAnimationFrame(loop);
 }
-
 if (!reduceMotion) loop();
