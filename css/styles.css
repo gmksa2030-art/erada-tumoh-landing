@@ -1,13 +1,12 @@
 :root{
-  /* خلفية أوضح (بدون سواد فاحم) */
-  --bg0:#0B1A33;   /* أزرق داكن أوضح */
-  --bg1:#0E2B45;   /* أزرق/سلايت */
-  --bg2:#102E52;
-
+  --bg0:#0B1A33;
+  --bg1:#0E2B45;
   --teal:#1FA7B8;
   --teal2:#2CC6D8;
 
   --ink:#EAF2FF;
+  --textHi: rgba(234,242,255,.92);
+  --textMd: rgba(234,242,255,.78);
   --muted:#A9B8D6;
 
   --shadow: 0 24px 70px rgba(0,0,0,.45);
@@ -22,21 +21,18 @@ body{
   margin:0;
   font-family:"Cairo", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
   color:var(--ink);
-
-  /* أوضح + أعمق من غير سواد */
   background:
     radial-gradient(900px 600px at 82% -10%, rgba(31,167,184,.18), transparent 60%),
     radial-gradient(700px 520px at 12% 0%, rgba(44,198,216,.12), transparent 55%),
     radial-gradient(900px 620px at 30% 120%, rgba(16,46,82,.55), transparent 58%),
     linear-gradient(180deg, var(--bg0), var(--bg1) 58%, var(--bg0));
-
   min-height: 100vh;
   overflow-x:hidden;
   padding-bottom: max(18px, env(safe-area-inset-bottom));
   position:relative;
 }
 
-/* Aurora animated overlay (إبداعية لطيفة) */
+/* Aurora overlay */
 body::before{
   content:"";
   position:fixed;
@@ -63,18 +59,9 @@ body::before{
 }
 
 /* particles */
-#particles{
-  position:fixed;
-  inset:0;
-  z-index:-2;
-  opacity:.50;
-}
+#particles{ position:fixed; inset:0; z-index:-2; opacity:.50; }
 .noise{
-  position:fixed;
-  inset:0;
-  z-index:-1;
-  pointer-events:none;
-  opacity:.045;
+  position:fixed; inset:0; z-index:-1; pointer-events:none; opacity:.045;
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='.55'/%3E%3C/svg%3E");
   mix-blend-mode:overlay;
 }
@@ -89,7 +76,7 @@ body::before{
   gap: 26px;
 }
 
-/* Side title - hidden on tablets/phones */
+/* Side title */
 .side-title{
   flex: 1;
   display:flex;
@@ -110,20 +97,38 @@ body::before{
 }
 .side-title span{ color: var(--teal2); }
 
-/* Compact card region */
+/* Card */
 .card{
   width: min(820px, 100%);
   border-radius: var(--radius);
-  background: linear-gradient(180deg, rgba(255,255,255,.095), rgba(255,255,255,.055));
+  background: linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.055));
   border: 1px solid rgba(255,255,255,.12);
   backdrop-filter: blur(16px);
   box-shadow: var(--shadow);
   overflow:hidden;
   position:relative;
   transform: translateZ(0);
+
+  /* spotlight vars (set by JS) */
+  --mx: 50%;
+  --my: 30%;
 }
 
-/* animated glow on card */
+/* spotlight that follows cursor */
+.card::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  background:
+    radial-gradient(380px 240px at var(--mx) var(--my),
+      rgba(44,198,216,.18),
+      transparent 55%);
+  opacity: .9;
+  transition: opacity .25s var(--ease);
+}
+
+/* moving glow */
 .card::before{
   content:"";
   position:absolute;
@@ -148,6 +153,7 @@ body::before{
   align-items:flex-start;
   justify-content:space-between;
   gap: 12px;
+  z-index:1;
 }
 
 .kicker{
@@ -155,11 +161,10 @@ body::before{
   align-items:center;
   gap:12px;
   font-weight:900;
-  color: rgba(234,242,255,.94);
+  color: var(--textHi);
   line-height:1.4;
   font-size: clamp(1.02rem, 1.6vw, 1.14rem);
 }
-
 .dot{
   width:12px; height:12px;
   border-radius:50%;
@@ -172,23 +177,16 @@ body::before{
   0%,100%{ transform: scale(1); opacity:1; }
   50%{ transform: scale(1.08); opacity:.85; }
 }
-
-.brandline{
-  display:flex;
-  align-items:baseline;
-  gap:10px;
-  flex-wrap:wrap;
-}
-
+.brandline{ display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; }
 .kicker small{
   display:block;
-  color: rgba(234,242,255,.74);
+  color: rgba(234,242,255,.76);
   font-weight:800;
   margin-top:6px;
   font-size: .98rem;
 }
 
-/* logo pill (بدون كلمة الشعار) */
+/* Logo pill - bigger + auto zoom */
 .logo-pill{
   display:flex;
   align-items:center;
@@ -197,65 +195,59 @@ body::before{
   border-radius: 18px;
   background: rgba(255,255,255,.06);
   border: 1px solid rgba(255,255,255,.14);
+  z-index:1;
 }
-
-/* تكبير الشعار + لمسة حركة */
 .logo-pill img{
-  width:36px;
-  height:36px;
+  width:56px;   /* ✅ تكبير واضح */
+  height:56px;
   object-fit:contain;
   filter: drop-shadow(0 10px 18px rgba(0,0,0,.30));
-  animation: logoFloat 3.6s var(--ease) infinite alternate;
+  animation: logoZoom 2.8s var(--ease) infinite;
+  transform-origin: center;
 }
-@keyframes logoFloat{
-  from{ transform: translateY(0); }
-  to{ transform: translateY(-2px); }
-}
-
-.body{
-  position:relative;
-  padding: 0 18px 18px;
+@keyframes logoZoom{
+  0%{ transform: scale(1); }
+  50%{ transform: scale(1.10); }
+  100%{ transform: scale(1); }
 }
 
+.body{ position:relative; padding: 0 18px 18px; z-index:1; }
 .desc{
   margin: 6px 0 14px;
-  color: rgba(234,242,255,.82);
+  color: var(--textMd);
   font-weight:800;
   line-height:1.9;
   font-size: 1.05rem;
 }
 
-/* Grid */
 .grid{
   display:grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 12px;
 }
 
-/* Tiles with shimmer + motion */
+/* Tiles */
 .tile{
   text-align:right;
   width:100%;
   border-radius: 18px;
-  background: rgba(0,0,0,.14);
+  background: rgba(0,0,0,.12);
   border: 1px solid rgba(255,255,255,.12);
   padding: 16px 14px;
   position:relative;
   overflow:hidden;
   cursor:pointer;
-  transition: transform .25s var(--ease), border-color .25s var(--ease), background .25s var(--ease);
   outline:none;
   appearance:none;
+
   transform: translateY(10px);
   opacity: 0;
 }
-
 .tile.is-in{
   transform: translateY(0);
   opacity: 1;
   transition: transform .55s var(--ease), opacity .55s var(--ease), border-color .25s var(--ease), background .25s var(--ease);
 }
-
 .tile::before{
   content:"";
   position:absolute;
@@ -265,22 +257,19 @@ body::before{
   transform: translateY(12px);
   pointer-events:none;
 }
-
-/* Shimmer sweep */
 .tile::after{
   content:"";
   position:absolute;
   inset:0;
   background: linear-gradient(120deg, transparent 0%, rgba(255,255,255,.10) 35%, transparent 70%);
   transform: translateX(-120%);
-  opacity:.0;
+  opacity:0;
   pointer-events:none;
 }
-
 .tile:hover{
   transform: translateY(-3px);
   border-color: rgba(31,167,184,.30);
-  background: rgba(0,0,0,.18);
+  background: rgba(0,0,0,.16);
 }
 .tile:hover::after{
   opacity:.75;
@@ -290,6 +279,24 @@ body::before{
 .tile:active{ transform: translateY(-1px); }
 .tile:focus-visible{ box-shadow: var(--focus); }
 
+/* ✅ إصلاح النص الأسود: نجبر ألوان النص */
+.tile h3{
+  margin:0 0 8px;
+  font-size: 1.18rem;
+  font-weight:950;
+  letter-spacing:.2px;
+  color: var(--textHi);
+  position:relative;
+  z-index:1;
+}
+.tile p{
+  margin:0;
+  color: var(--textMd);
+  font-weight:800;
+  line-height:1.7;
+  position:relative;
+  z-index:1;
+}
 .tile-top{
   display:flex;
   align-items:center;
@@ -298,32 +305,8 @@ body::before{
   position:relative;
   z-index:1;
 }
-.tile-ico{
-  display:inline-flex;
-  font-size: 1.05rem;
-  filter: drop-shadow(0 10px 14px rgba(0,0,0,.22));
-}
-.tile-arrow{
-  color: rgba(234,242,255,.70);
-  font-weight:900;
-}
-
-.tile h3{
-  margin:0 0 8px;
-  font-size: 1.18rem;
-  font-weight:950;
-  letter-spacing:.2px;
-  position:relative;
-  z-index:1;
-}
-.tile p{
-  margin:0;
-  color: rgba(234,242,255,.74);
-  font-weight:800;
-  line-height:1.7;
-  position:relative;
-  z-index:1;
-}
+.tile-ico{ font-size: 1.05rem; filter: drop-shadow(0 10px 14px rgba(0,0,0,.22)); }
+.tile-arrow{ color: rgba(234,242,255,.75); font-weight:900; }
 .more{
   margin-top: 10px;
   display:flex;
@@ -331,14 +314,14 @@ body::before{
   align-items:center;
   color: var(--teal2);
   font-weight:950;
-  position:relative;
   font-size:.98rem;
+  position:relative;
   z-index:1;
 }
 
 .footnote{
   margin-top: 14px;
-  color: rgba(234,242,255,.70);
+  color: rgba(234,242,255,.72);
   font-weight:850;
   font-size: .95rem;
 }
@@ -376,11 +359,10 @@ body::before{
   padding: 22px;
 }
 .backdrop.open{ display:grid; place-items:center; }
-
 .modal{
-  width: min(720px, 100%);
+  width: min(760px, 100%);
   border-radius: 22px;
-  background: rgba(10,26,51,.94);
+  background: rgba(10,26,51,.95);
   border: 1px solid rgba(255,255,255,.14);
   backdrop-filter: blur(18px);
   box-shadow: 0 26px 90px rgba(0,0,0,.55);
@@ -389,7 +371,6 @@ body::before{
   animation: pop .26s var(--ease) forwards;
 }
 @keyframes pop{ to{ transform: translateY(0);} }
-
 .mhead{
   padding: 16px 16px 12px;
   border-bottom: 1px solid rgba(255,255,255,.10);
@@ -399,57 +380,28 @@ body::before{
   gap: 12px;
   align-items:flex-start;
 }
-.mhead h4{
-  margin:0;
-  font-weight:950;
-  font-size: 1.18rem;
-}
-.mhead p{
-  margin: 4px 0 0;
-  color: rgba(234,242,255,.78);
-  font-weight:800;
-  line-height:1.7;
-  font-size:.98rem;
-}
+.mhead h4{ margin:0; font-weight:950; font-size: 1.18rem; color: var(--textHi); }
+.mhead p{ margin: 6px 0 0; color: rgba(234,242,255,.80); font-weight:850; line-height:1.7; font-size:1rem; }
 .x{
   width:44px;height:44px;
   border-radius: 14px;
   border: 1px solid rgba(255,255,255,.16);
   background: rgba(255,255,255,.06);
   cursor:pointer;
-  display:grid;
-  place-items:center;
+  display:grid; place-items:center;
   transition: transform .25s var(--ease), background .25s var(--ease);
   color: var(--ink);
 }
 .x:hover{ transform: rotate(-4deg); background: rgba(255,255,255,.09); }
 .x:focus-visible{ outline:none; box-shadow: var(--focus); }
 .x svg{ width:18px;height:18px; }
-
-.mbody{
-  padding: 14px 16px 16px;
-  color: rgba(234,242,255,.86);
-  font-weight:800;
-  line-height:1.9;
-}
+.mbody{ padding: 14px 16px 16px; color: rgba(234,242,255,.86); font-weight:800; line-height:1.9; }
 #mBodyText{ color: rgba(234,242,255,.86); }
 
-.form{
-  margin-top: 12px;
-  display:grid;
-  gap: 10px;
-}
-.row{
-  display:grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-}
-label{
-  display:block;
-  font-weight:950;
-  margin: 4px 0 6px;
-  color: rgba(234,242,255,.88);
-}
+/* Form */
+.form{ margin-top: 12px; display:grid; gap: 10px; }
+.row{ display:grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+label{ display:block; font-weight:950; margin: 4px 0 6px; color: rgba(234,242,255,.90); }
 .field{
   width:100%;
   padding: 12px 12px;
@@ -460,23 +412,10 @@ label{
   outline:none;
   transition: box-shadow .2s var(--ease), border-color .2s var(--ease), background .2s var(--ease);
 }
-.field:focus{
-  border-color: rgba(31,167,184,.35);
-  box-shadow: var(--focus);
-  background: rgba(0,0,0,.24);
-}
-
-.actions{
-  display:flex;
-  gap:10px;
-  flex-wrap:wrap;
-  margin-top: 10px;
-}
+.field:focus{ border-color: rgba(31,167,184,.35); box-shadow: var(--focus); background: rgba(0,0,0,.24); }
+.actions{ display:flex; gap:10px; flex-wrap:wrap; margin-top: 10px; }
 .btn{
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  gap:10px;
+  display:inline-flex; align-items:center; justify-content:center; gap:10px;
   padding: 11px 14px;
   border-radius: 14px;
   border: 1px solid rgba(255,255,255,.14);
@@ -493,13 +432,7 @@ label{
   border-color: rgba(31,167,184,.45);
   background: linear-gradient(135deg, rgba(31,167,184,.22), rgba(44,198,216,.10));
 }
-
-.office{
-  margin-top: 6px;
-  color: rgba(169,184,214,.95);
-  font-weight:850;
-  line-height:1.7;
-}
+.office{ margin-top: 6px; color: rgba(169,184,214,.95); font-weight:850; line-height:1.7; }
 
 /* Toast */
 .toast{
@@ -531,7 +464,7 @@ label{
 @keyframes toastIn{ to{ transform: translateY(0); opacity:1; } }
 .bar{ width:6px; border-radius: 99px; background: var(--teal2); }
 
-/* Touch devices */
+/* Touch */
 @media (hover: none){
   .tile:hover{ transform:none; }
   .wa:hover{ transform:none; }
@@ -544,12 +477,8 @@ label{
   .wrap{ justify-content:center; }
   .side-title{ display:none; }
 }
-
 @media (max-width: 600px){
-  .wrap{
-    width: calc(100% - 24px);
-    padding: 18px 0 18px;
-  }
+  .wrap{ width: calc(100% - 24px); padding: 18px 0 18px; }
   .top{ padding: 16px 14px 12px; }
   .body{ padding: 0 14px 14px; }
   .grid{ grid-template-columns: 1fr; }
@@ -563,4 +492,6 @@ label{
 @media (prefers-reduced-motion: reduce){
   *{ transition-duration:.001ms !important; animation-duration:.001ms !important; }
   body::before{ animation: none !important; }
+  .card::before{ animation: none !important; }
+  .logo-pill img{ animation: none !important; }
 }
